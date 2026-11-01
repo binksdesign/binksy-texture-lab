@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agents IA — Texture Lab</title>
+<meta name="description" content="Mode d’emploi pour agents IA : piloter Texture Lab par son interface (sélecteurs réels, parcours, export, vérifications), FR / EN. Aucune clé API, tout est local.">
+<meta name="theme-color" content="#111111">
+<meta name="author" content="Binks Design">
+<meta property="og:title" content="Agents IA — Texture Lab">
+<meta property="og:description" content="Mode d’emploi pour agents IA : piloter Texture Lab par son interface (sélecteurs réels, parcours, export, vérifications), FR / EN. Aucune clé API, tout est local.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111'/%3E%3Cg transform='translate(4 4)'%3E%3Cg fill='%23f2f2f0'%3E%3Crect x='3' y='3' width='4' height='4'/%3E%3Crect x='11' y='3' width='4' height='4'/%3E%3Crect x='7' y='7' width='4' height='4'/%3E%3Crect x='15' y='7' width='4' height='4'/%3E%3Crect x='3' y='11' width='4' height='4'/%3E%3Crect x='11' y='11' width='4' height='4'/%3E%3Crect x='7' y='15' width='4' height='4'/%3E%3Crect x='15' y='15' width='4' height='4'/%3E%3Crect x='3' y='19' width='2' height='2'/%3E%3Crect x='11' y='19' width='2' height='2'/%3E%3Crect x='19' y='3' width='2' height='2'/%3E%3Crect x='19' y='11' width='2' height='2'/%3E%3C/g%3E%3Crect x='17' y='17' width='4' height='4' fill='%23ff5500'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="alternate" type="text/markdown" href="../AGENTS.md" title="Mode d’emploi pour agents IA (Markdown, FR puis EN)">
+<link rel="help" href="../agent/" title="Agents IA">
+<link rel="alternate" type="text/plain" href="../llms.txt" title="llms.txt">
+<link rel="stylesheet" href="../assets/site.css">
+<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('anim');</script>
+<script src="../assets/site.js" defer></script>
+</head>
+<!-- Agents IA / AI agents : lisez ../AGENTS.md (Markdown, français puis anglais) ou ../agent/index.html avant d’agir. L’application est ../app.html ; pas d’API JavaScript publique : pilotage par l’interface (identifiants stables #file, #exportBtn…). Aucune clé API, tout est calculé dans le navigateur. -->
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<noscript><p style="margin:0;padding:10px 18px;background:#ff5500;color:#0b0b0b;font:600 14px/1.4 sans-serif">Agents IA : le mode d’emploi complet est dans <a href="../AGENTS.md">AGENTS.md</a> (page HTML : <a href="../agent/index.html">agent/</a>). L’application (<a href="../app.html">app.html</a>) a besoin de JavaScript et de WebGL2.</p></noscript>
+<header class="top">
+  <a class="brand" href="../index.html" aria-label="Texture Lab — accueil"><span class="mk"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="#f2f2f0"><rect x="3" y="3" width="4" height="4"/><rect x="11" y="3" width="4" height="4"/><rect x="7" y="7" width="4" height="4"/><rect x="15" y="7" width="4" height="4"/><rect x="3" y="11" width="4" height="4"/><rect x="11" y="11" width="4" height="4"/><rect x="7" y="15" width="4" height="4"/><rect x="15" y="15" width="4" height="4"/><rect x="3" y="19" width="2" height="2"/><rect x="11" y="19" width="2" height="2"/><rect x="19" y="3" width="2" height="2"/><rect x="19" y="11" width="2" height="2"/></g><rect x="17" y="17" width="4" height="4" fill="#ff5500"/></svg></span><b>Texture Lab</b></a>
+  <a class="sig" href="https://www.instagram.com/graphiste.binks/" target="_blank" rel="noopener">by binks design</a>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="../index.html">Accueil</a>
+    <a href="../docs.html">Documentation</a>
+    <a href="../agent/index.html" aria-current="page">Agents IA</a>
+    <a class="cta" href="../app.html">Ouvrir l’app</a>
+  </nav>
+</header>
+<div class="sheet"><main id="contenu">
+  <div class="doc-hero">
+    <div class="plane" aria-hidden="true"></div>
+    <div class="in-w">
+      <p class="kicker"><i aria-hidden="true"></i>Pour Claude Code, Codex et tout agent qui pilote un navigateur</p>
+      <h1 class="doc-h1"><span class="mask"><span>Mode d’emploi</span></span><span class="mask"><span style="--i:1">pour <em>agents IA</em></span></span></h1>
+      <p class="lead">Comment piloter Texture Lab par son interface : importer, empiler des effets, régler, exporter et vérifier. Pas d’API publique à inventer, de vrais sélecteurs. Même contenu en Markdown : <a class="lnk" href="../AGENTS.md">AGENTS.md</a>.</p>
+      <div class="meta lang-switch">
+        <a class="tag" href="#fr-intro">Français</a>
+        <a class="tag" href="#en-intro" hreflang="en">English</a>
+        <a class="tag" href="../AGENTS.md" type="text/markdown">AGENTS.md</a>
+        <a class="tag" href="../llms.txt" type="text/plain">llms.txt</a>
+        <a class="tag" href="../docs.html">Documentation (humains)</a>
+      </div>
+    </div>
+  </div>
+  <div class="in-w doc-grid">
+    <details class="toc" open>
+      <summary><span>Sommaire</span><span class="cur"></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <nav class="toc-body" aria-label="Sommaire"><span class="toc-h" lang="fr">Français</span><ol><li><a href="#fr-regle-fondamentale"><span class="n">01</span><span>Règle fondamentale</span></a></li><li><a href="#fr-demarrer"><span class="n">02</span><span>Démarrer</span></a></li><li><a href="#fr-parcours-type"><span class="n">03</span><span>Parcours type</span></a></li><li><a href="#fr-reperes-de-linterface-selecteurs-reels"><span class="n">04</span><span>Repères de l’interface (sélecteurs réels)</span></a></li><li><a href="#fr-effets-prereglages-sortie"><span class="n">05</span><span>Effets, préréglages, sortie</span></a></li><li><a href="#fr-lobjet-interne-window-tl"><span class="n">06</span><span>L’objet interne <code>window.TL</code></span></a></li><li><a href="#fr-etat-persistant-et-projets"><span class="n">07</span><span>État persistant et projets</span></a></li><li><a href="#fr-clavier"><span class="n">08</span><span>Clavier</span></a></li><li><a href="#fr-mise-en-page-mobile"><span class="n">09</span><span>Mise en page mobile</span></a></li><li><a href="#fr-verifications-avant-de-rendre-le-travail"><span class="n">10</span><span>Vérifications avant de rendre le travail</span></a></li><li><a href="#fr-limites-et-erreurs"><span class="n">11</span><span>Limites et erreurs</span></a></li><li><a href="#fr-logique-a-suivre-pour-chaque-tache"><span class="n">12</span><span>Logique à suivre pour chaque tâche</span></a></li></ol><div style="height:18px"></div><span class="toc-h" lang="en">English</span><ol><li><a href="#en-golden-rule"><span class="n">01</span><span>Golden rule</span></a></li><li><a href="#en-getting-started"><span class="n">02</span><span>Getting started</span></a></li><li><a href="#en-typical-flow"><span class="n">03</span><span>Typical flow</span></a></li><li><a href="#en-interface-hooks-real-selectors"><span class="n">04</span><span>Interface hooks (real selectors)</span></a></li><li><a href="#en-effects-presets-output"><span class="n">05</span><span>Effects, presets, output</span></a></li><li><a href="#en-the-internal-window-tl-object"><span class="n">06</span><span>The internal <code>window.TL</code> object</span></a></li><li><a href="#en-persistent-state-and-projects"><span class="n">07</span><span>Persistent state and projects</span></a></li><li><a href="#en-keyboard"><span class="n">08</span><span>Keyboard</span></a></li><li><a href="#en-mobile-layout"><span class="n">09</span><span>Mobile layout</span></a></li><li><a href="#en-checks-before-handing-back"><span class="n">10</span><span>Checks before handing back</span></a></li><li><a href="#en-limits-and-errors"><span class="n">11</span><span>Limits and errors</span></a></li><li><a href="#en-logic-for-every-task"><span class="n">12</span><span>Logic for every task</span></a></li></ol></nav>
+    </details>
+    <article class="prose">
+<section id="fr-intro" lang="fr"><p>Ce document s’adresse aux agents IA (Claude Code, Codex, ou tout agent qui pilote un navigateur via Playwright / CDP). Il explique comment utiliser <strong>Texture Lab</strong> (<code>app.html</code>) : importer une image ou une vidéo, empiler et régler des effets (dither, halftone, VHS, glitch, gradient maps…), animer des réglages et exporter en PNG, JPEG ou vidéo.</p>
+<p>Il existe en deux endroits, toujours identiques : <code>AGENTS.md</code> (Markdown, français puis anglais) et la page <code>agent/index.html</code>. Résumé court : <code>llms.txt</code>.</p>
+<p>Points d’entrée découvrables sans JavaScript : <code>index.html</code> et <code>docs.html</code> déclarent <code>&lt;link rel="alternate" type="text/markdown" href="../AGENTS.md"&gt;</code>, <code>&lt;link rel="help" href="../agent/"&gt;</code> et <code>&lt;link rel="alternate" type="text/plain" href="../llms.txt"&gt;</code>, et contiennent un commentaire HTML et un <code>&lt;noscript&gt;</code> qui renvoient ici. <code>robots.txt</code> autorise tout et cite <code>llms.txt</code> et <code>AGENTS.md</code>.</p></section>
+<section id="fr-regle-fondamentale" lang="fr"><h2><span class="n">01</span><span>Règle fondamentale</span></h2>
+<p>Texture Lab applique des effets au fichier que l’utilisateur fournit. Ce n’est <strong>pas</strong> un générateur d’images.</p>
+<ul>
+<li><strong>Travaille uniquement sur les fichiers que l’utilisateur te donne.</strong> L’image d’exemple intégrée (bouton « Image d’exemple ») sert à tester ; ne la livre jamais à la place du fichier de l’utilisateur.</li>
+<li><strong>N’ajoute aucun texte ni visuel de marque</strong> sans accord. L’effet « Incrustation VHS » affiche du texte (par défaut <code>PLAY ▶</code> et <code>OCT. 23 1994</code>) : ne le remplace pas par un nom, un slogan ou une date de ton invention.</li>
+<li>Ne remplace pas un fichier manquant ou illisible par un fichier « approchant ». Dis ce qui manque.</li>
+<li><strong>Aucune clé API, aucun service en ligne.</strong> Texture Lab n’embarque aucune IA et n’en appelle aucune. Ne demande jamais de clé à l’utilisateur.</li>
+<li><strong>Tout est local</strong> : lecture, calcul (WebGL2) et encodage se font dans le navigateur. Rien n’est envoyé à un serveur ; seules les polices de l’interface sont chargées en ligne (Google Fonts, Fontshare).</li>
+<li><strong>Il n’y a pas d’API JavaScript publique.</strong> On pilote l’interface (§ 4). L’objet <code>window.TL</code> existe mais il est interne (§ 6).</li>
+</ul>
+<p>Après chaque action, vérifie l’état (texte affiché, <code>#stack</code>, fichier téléchargé). <strong>Un clic n’est pas une preuve de réussite.</strong></p></section>
+<section id="fr-demarrer" lang="fr"><h2><span class="n">02</span><span>Démarrer</span></h2>
+<h3 id="fr-demarrer-servir-lapp">Servir l’app</h3>
+<p>Le dépôt est un site statique : <code>index.html</code> (accueil), <code>app.html</code> (l’application, un seul fichier autonome), <code>docs.html</code> (documentation), <code>agent/index.html</code> (cette page), <code>AGENTS.md</code>, <code>llms.txt</code>, <code>robots.txt</code>, <code>assets/</code> (styles, polices et images des pages).</p>
+<pre><code class="language-bash">python3 -m http.server 8000
+# puis ouvrir http://127.0.0.1:8000/app.html
+</code></pre>
+<ul>
+<li><code>app.html?demo</code> charge directement l’image d’exemple.</li>
+<li><code>file://</code> marche aussi (l’app n’a besoin d’aucune requête) ; seul le manifeste « écran d’accueil » est omis.</li>
+<li>En ligne : <code>https://texture.binksdesign.com/app.html</code>.</li>
+</ul>
+<h3 id="fr-demarrer-navigateur">Navigateur</h3>
+<ul>
+<li><strong>WebGL2 est obligatoire.</strong> Sans lui, l’app remplace la page par un message (« Ton navigateur ne gère pas WebGL2… »).</li>
+<li>En Chromium sans GPU (headless), lance avec <code>--use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist</code>.</li>
+<li>Le rendu logiciel est lent : la boucle d’aperçu peut empêcher Playwright de juger un élément « stable ». Mets la lecture en pause (bouton <code>#playBtn</code> ou touche Espace) avant d’enchaîner les clics, ou déclenche le clic par <code>element.click()</code> dans la page (<code>locator.dispatch_event('click')</code>).</li>
+<li>Utilise un profil dédié aux tests : la session (pile d’effets et sortie) est mémorisée pour l’origine (§ 7).</li>
+<li>Viewport ≥ 900 px de large pour la mise en page bureau décrite ici. En dessous, l’app passe en mise en page mobile (§ 9).</li>
+</ul></section>
+<section id="fr-parcours-type" lang="fr"><h2><span class="n">03</span><span>Parcours type</span></h2>
+<ol>
+<li>Ouvrir <code>app.html</code>.</li>
+<li>Importer : <code>set_input_files('#file', chemin)</code>. L’import est <strong>asynchrone</strong> : attends que <code>#srcName</code> affiche le nom du fichier (ou que <code>window.TL.ready</code> soit <code>true</code>).</li>
+<li>Construire la pile : cliquer un préréglage <code>#presets .preset</code> et/ou des effets <code>#lib .tile[data-id="…"]</code>.</li>
+<li>Régler l’effet sélectionné dans <code>#fxPanel</code> (onglet <code>.tab[data-tab="fx"]</code>).</li>
+<li>Choisir la sortie dans <code>#outPanel</code> (onglet <code>.tab[data-tab="out"]</code>).</li>
+<li>Exporter : cliquer <code>#exportBtn</code> et attendre l’événement de téléchargement.</li>
+<li>Vérifier le fichier (§ 10).</li>
+</ol>
+<pre><code class="language-python">page.goto(&quot;http://127.0.0.1:8000/app.html&quot;)
+page.set_input_files(&quot;#file&quot;, &quot;photo.jpg&quot;)
+page.wait_for_selector(&quot;#srcName:has-text('photo.jpg')&quot;)
+page.click(&quot;#playBtn&quot;)                                   # pause : clics plus fiables
+page.click('#presets .preset:has-text(&quot;VHS 1994&quot;)')
+page.click('.tab[data-tab=&quot;out&quot;]')
+page.click('#outPanel .seg button:has-text(&quot;JPEG&quot;)')
+with page.expect_download(timeout=120_000) as dl:
+    page.click(&quot;#exportBtn&quot;)
+dl.value.save_as(&quot;photo-texturelab.jpg&quot;)
+</code></pre></section>
+<section id="fr-reperes-de-linterface-selecteurs-reels" lang="fr"><h2><span class="n">04</span><span>Repères de l’interface (sélecteurs réels)</span></h2>
+<h3 id="fr-reperes-de-linterface-selecteurs-reels-fixes">Fixes</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Sélecteur</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#file</code></td>
+<td>champ fichier caché (image/*, video/*) — à remplir avec <code>set_input_files</code></td>
+</tr>
+<tr>
+<td><code>#drop</code></td>
+<td>zone d’import (clic ou glisser-déposer) ; <code>#srcName</code> = nom du fichier chargé</td>
+</tr>
+<tr>
+<td><code>#demoBtn</code>, <code>#emptyDemo</code></td>
+<td>charger l’image d’exemple (<code>#emptyDemo</code> applique aussi le préréglage Binks si la pile est vide)</td>
+</tr>
+<tr>
+<td><code>#emptyImport</code></td>
+<td>ouvrir le sélecteur de fichier (écran vide)</td>
+</tr>
+<tr>
+<td><code>#presets</code></td>
+<td>préréglages ; <code>.more-presets</code> déplie la liste complète</td>
+</tr>
+<tr>
+<td><code>#savePreset</code></td>
+<td>enregistrer la pile comme préréglage (ouvre un <code>prompt()</code> : gère la boîte de dialogue)</td>
+</tr>
+<tr>
+<td><code>#stack</code></td>
+<td>pile d’effets ; <code>#addFx</code> ouvre la bibliothèque</td>
+</tr>
+<tr>
+<td><code>#libSearch</code>, <code>#cats</code>, <code>#lib</code></td>
+<td>recherche, filtres de famille, bibliothèque</td>
+</tr>
+<tr>
+<td><code>.tab[data-tab="lib"|"fx"|"out"]</code></td>
+<td>onglets Effets / Réglages / Sortie</td>
+</tr>
+<tr>
+<td><code>#fxPanel</code></td>
+<td>réglages de l’effet sélectionné</td>
+</tr>
+<tr>
+<td><code>#outPanel</code></td>
+<td>réglages de sortie</td>
+</tr>
+<tr>
+<td><code>#compareBtn</code>, <code>#surpriseBtn</code>, <code>#clearBtn</code></td>
+<td>Comparer, Surprends-moi, Tout retirer</td>
+</tr>
+<tr>
+<td><code>#undoBtn</code>, <code>#redoBtn</code></td>
+<td>annuler, rétablir</td>
+</tr>
+<tr>
+<td><code>#exportBtn</code></td>
+<td>exporter (bureau : export direct ; mobile : ouvre un récapitulatif)</td>
+</tr>
+<tr>
+<td><code>#modal</code>, <code>#mText</code>, <code>#mCancel</code></td>
+<td>fenêtre de progression de l’export, son texte, Annuler</td>
+</tr>
+<tr>
+<td><code>#toast</code></td>
+<td>message bref (succès ou erreur)</td>
+</tr>
+<tr>
+<td><code>#saveProj</code>, <code>#openProj</code>, <code>#projFile</code></td>
+<td>enregistrer / ouvrir un projet <code>.json</code> (<code>#projFile</code> = champ fichier caché)</td>
+</tr>
+<tr>
+<td><code>#playBtn</code>, <code>#tRange</code>, <code>#muteBtn</code></td>
+<td>lecture / pause, position, son (vidéo)</td>
+</tr>
+<tr>
+<td><code>#view</code></td>
+<td>le canvas d’aperçu</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="fr-reperes-de-linterface-selecteurs-reels-generes">Générés</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Sélecteur</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#presets .preset</code></td>
+<td>un préréglage ; texte = son nom. Préréglage perso : contient <code>.x</code> (supprimer)</td>
+</tr>
+<tr>
+<td><code>#lib .tile[data-id="&lt;id&gt;"]</code></td>
+<td>un effet de la bibliothèque (ajout au clic) ; classe <code>added</code> s’il est déjà dans la pile</td>
+</tr>
+<tr>
+<td><code>#cats .chip[data-cat="&lt;famille&gt;"]</code></td>
+<td>filtre (<code>all</code>, <code>couleur</code>, <code>dither</code>, <code>trame</code>, <code>pixel</code>, <code>shader</code>, <code>grain</code>, <code>analog</code>, <code>glitch</code>, <code>distort</code>, <code>style</code>)</td>
+</tr>
+<tr>
+<td><code>#stack li.layer[data-uid]</code></td>
+<td>une couche (la première de la liste = le haut de la pile, appliqué en dernier) ; <code>.l-name</code>, <code>.l-eye</code> (masquer / afficher), <code>.l-del</code> (retirer) ; classes <code>sel</code>, <code>off</code></td>
+</tr>
+<tr>
+<td><code>#fxPanel .fx-head h2</code></td>
+<td>nom de l’effet sélectionné</td>
+</tr>
+<tr>
+<td><code>#fxPanel [data-a="anim"|"rand"|"reset"|"dup"]</code></td>
+<td>animer l’effet, au hasard, réinitialiser, dupliquer</td>
+</tr>
+<tr>
+<td><code>#fxPanel .ctl</code></td>
+<td>un réglage : libellé dans <code>.ctl-l span</code>, puis <code>input.rg</code> (curseur), <code>select</code>, <code>input[type=color]</code>, <code>.switch[role=switch]</code> ou <code>input.txt</code></td>
+</tr>
+<tr>
+<td><code>.anim-btn</code></td>
+<td>bouton d’animation d’un réglage ; ouvre <code>.anim-box</code> (valeur d’arrivée, mouvement, vitesse)</td>
+</tr>
+<tr>
+<td><code>#outPanel .seg button</code></td>
+<td>choix segmentés : <code>Original</code>, <code>1:1</code>, <code>4:5</code>, <code>9:16</code>, <code>16:9</code> ; <code>PNG</code>, <code>JPEG</code>, <code>Vidéo</code> ; <code>24</code>, <code>25</code>, <code>30</code>, <code>60</code> ; <code>Fluide</code>, <code>Net</code></td>
+</tr>
+<tr>
+<td><code>#outPanel .help</code></td>
+<td>la première indique la taille exacte : « Sortie en L × H px »</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="fr-reperes-de-linterface-selecteurs-reels-changer-une-valeur">Changer une valeur</h3>
+<p>Les curseurs réagissent aux événements <code>input</code> puis <code>change</code> (le <code>change</code> enregistre l’étape d’historique et la session) :</p>
+<pre><code class="language-js">const ctl = [...document.querySelectorAll('#fxPanel .ctl')]
+  .find(c =&gt; c.querySelector('.ctl-l span')?.textContent === 'Taille de la trame');
+const r = ctl.querySelector('input.rg');
+r.value = 14;
+r.dispatchEvent(new Event('input'));
+r.dispatchEvent(new Event('change'));
+</code></pre>
+<p>Listes : <code>select.value = index; select.dispatchEvent(new Event('change'))</code> (la valeur est l’<strong>index</strong> de l’option). Couleurs : <code>input[type=color]</code> + <code>input</code> puis <code>change</code>. Double-clic sur un curseur = valeur par défaut.</p></section>
+<section id="fr-effets-prereglages-sortie" lang="fr"><h2><span class="n">05</span><span>Effets, préréglages, sortie</span></h2>
+<ul>
+<li><strong>80 effets</strong> en 10 familles : <code>couleur</code> (11), <code>dither</code> (5), <code>trame</code> (13), <code>pixel</code> (8), <code>shader</code> (6), <code>grain</code> (9), <code>analog</code> (6), <code>glitch</code> (9), <code>distort</code> (7), <code>style</code> (6). Identifiants, noms et réglages : <code>window.TL.DEFS</code> (§ 6) ou la <a href="../docs.html#bibliotheque">documentation</a>.</li>
+<li>Effets calculés par le processeur (plus lents) : <code>errdiff</code>, <code>pixelsort</code>, <code>jpeg</code>. Effets à rétroaction : <code>datamosh</code>, <code>echo</code>.</li>
+<li><strong>20 préréglages</strong> : VHS 1994, Game Boy, Riso zine, Journal, Glitch club, Cyber CRT, Film 35 mm, Gravure, Verre cannelé, Terminal, Thermique, 1-bit Atkinson, Pixel sort, Photocopie, CMJN offset, Datamosh, PICO-8, Hologramme, Vitrail, Binks. Un préréglage <strong>remplace</strong> la pile.</li>
+<li>Ajouter un effet ou un préréglage sans média chargé charge l’image d’exemple : importe le fichier de l’utilisateur <strong>avant</strong>.</li>
+<li><strong>Fusion</strong> par couche : opacité 0–100 % et 9 modes (Normal, Produit, Écran, Incrustation, Lumière tamisée, Addition, Différence, Couleur, Luminosité).</li>
+<li><strong>Animation</strong> : chaque réglage numérique et l’opacité ; valeur d’arrivée, mouvement (Va-et-vient, Montée en boucle, Pulsation, Dérive organique, Saccadé), vitesse en cycles par boucle (arrondie pour boucler sur la durée).</li>
+<li><strong>Sortie</strong> : cadrage <code>Original</code> / <code>1:1</code> / <code>4:5</code> / <code>9:16</code> / <code>16:9</code> (recadrage centré) ; résolution Originale, 4K, 1440p, 1080p, 720p (petit côté ; 8192 px max ou limite GPU) ; PNG, JPEG (qualité 50–100 %, 92 % par défaut) ou Vidéo (0,5–60 s pour une image ; 24 / 25 / 30 / 60 images/s ; pour une vidéo source : début, fin, boucler la source, garder le son). Aperçu <code>Fluide</code> (1500 px) ou <code>Net</code> (2600 px) ; <strong>l’export est toujours en pleine résolution</strong>.</li>
+</ul>
+<h3 id="fr-effets-prereglages-sortie-fichiers-produits">Fichiers produits</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Cas</th>
+<th>Nom du fichier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PNG / JPEG</td>
+<td><code>&lt;nom de la source sans extension&gt;-texturelab.png</code> / <code>.jpg</code></td>
+</tr>
+<tr>
+<td>Vidéo (WebCodecs)</td>
+<td><code>&lt;nom&gt;-texturelab.mp4</code> — H.264, sinon VP9 ou AV1 ; son AAC ou Opus si « Garder le son »</td>
+</tr>
+<tr>
+<td>Vidéo (repli temps réel MediaRecorder)</td>
+<td><code>&lt;nom&gt;-texturelab.mp4</code> ou <code>.webm</code>, 1080p max, sans son</td>
+</tr>
+<tr>
+<td>Projet</td>
+<td><code>texture-lab-projet.json</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Avec l’image d’exemple, le nom de la source est « Image d’exemple ». Les fichiers sont remis par un lien de téléchargement : écoute l’événement <em>download</em> de ton navigateur piloté (dossier de téléchargements). Avec une vidéo en entrée, PNG / JPEG exportent l’image affichée à l’instant courant.</p></section>
+<section id="fr-lobjet-interne-window-tl" lang="fr"><h2><span class="n">06</span><span>L’objet interne <code>window.TL</code></span></h2>
+<p><code>app.html</code> expose <code>window.TL</code> pour ses propres tests. <strong>Ce n’est pas une API publique</strong> : rien n’est versionné ni garanti. Utilise-le surtout en lecture.</p>
+<pre><code class="language-js">TL.ready            // true quand une image ou une vidéo est chargée
+TL.st.stack         // [{uid, id, on, mix, blend, v:{…}, anim:{…}}] — du bas vers le haut
+TL.st.out           // {aspect, res, fmt, dur, fps, inT, outT, loopSrc, audio, quality, jpgQ}
+TL.DEFS             // définitions des 80 effets : {id: {name, cat, params:[{k, label, type, min, max, def, options}]}}
+TL.outDims(true)    // {w, h, crop} : taille exacte de l’export
+TL.addFx('halftone')   // ajoute un effet en haut de la pile (historique et session compris)
+TL.loadDemo()          // charge l’image d’exemple
+TL.setPlaying(false)   // pause
+TL.runExport()         // lance l’export avec la sortie courante (comme #exportBtn au bureau)
+</code></pre>
+<p>Ne modifie pas <code>TL.st</code> directement : l’historique et la session ne seraient pas mis à jour. Pour imposer des valeurs exactes, passe par l’interface (§ 4) ou par un fichier projet (§ 7).</p></section>
+<section id="fr-etat-persistant-et-projets" lang="fr"><h2><span class="n">07</span><span>État persistant et projets</span></h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Où</th>
+<th>Clé / fichier</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>texturelab.session</code></td>
+<td><code>{stack, out}</code> — réécrit à chaque modification, relu au chargement (une sortie <code>video</code> repasse en <code>png</code>)</td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>texturelab.presets</code></td>
+<td><code>[{name, stack}]</code> — préréglages perso</td>
+</tr>
+<tr>
+<td>fichier</td>
+<td><code>texture-lab-projet.json</code></td>
+<td><code>{app: "texturelab", v: 1, stack, out}</code></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Le média n’est jamais enregistré</strong> : après un rechargement, la pile revient mais <code>TL.ready</code> est <code>false</code> ; réimporte le fichier.</li>
+<li>L’historique (annuler / rétablir, 120 étapes) n’est pas conservé.</li>
+<li><code>#projFile</code> (ou un <code>.json</code> glissé sur la page) ouvre un projet : effets inconnus ignorés, image d’exemple chargée si aucun média. Chaque couche du projet doit contenir <strong>tous</strong> ses réglages dans <code>v</code> (les valeurs manquantes ne sont pas complétées) : pars d’un projet enregistré par l’app, puis modifie ses valeurs.</li>
+<li>Pour repartir de zéro : <code>#clearBtn</code>, ou <code>localStorage.removeItem('texturelab.session')</code> puis rechargement.</li>
+</ul></section>
+<section id="fr-clavier" lang="fr"><h2><span class="n">08</span><span>Clavier</span></h2>
+<p><code>Ctrl</code>/<code>⌘</code> + <code>Z</code> annuler ; <code>Ctrl</code>/<code>⌘</code> + <code>Maj</code> + <code>Z</code> ou <code>Ctrl</code>/<code>⌘</code> + <code>Y</code> rétablir ; <code>Espace</code> lecture / pause ; <code>C</code> maintenu = original ; <code>Suppr</code> / <code>Retour arrière</code> = retirer la couche sélectionnée ; <code>Échap</code> ferme panneau ou dialogue (mobile). Les touches simples sont ignorées pendant la saisie dans un champ.</p></section>
+<section id="fr-mise-en-page-mobile" lang="fr"><h2><span class="n">09</span><span>Mise en page mobile</span></h2>
+<p>Sous 900 px de large (ou téléphone en paysage), les panneaux sont déplacés dans des feuilles : barre <code>#mTabs</code> avec <code>button[data-sheet="lib"|"stack"|"fx"|"out"|"media"]</code>, feuille <code>#sheet</code>. Les mêmes éléments (<code>#lib</code>, <code>#stack</code>, <code>#fxPanel</code>, <code>#outPanel</code>, <code>#drop</code>…) y sont déplacés, sans doublon. <code>#exportBtn</code> ouvre un récapitulatif dont le bouton <code>#xGo</code> lance l’export ; si le navigateur sait partager des fichiers, une boîte « C’est prêt » propose « Télécharger » (<code>#dlBtn</code>) ou « Enregistrer ou partager » (<code>#shBtn</code>). Pour un agent, la mise en page bureau est plus simple.</p></section>
+<section id="fr-verifications-avant-de-rendre-le-travail" lang="fr"><h2><span class="n">10</span><span>Vérifications avant de rendre le travail</span></h2>
+<ul>
+<li>Le fichier source est bien celui de l’utilisateur (<code>#srcName</code>) et non l’image d’exemple.</li>
+<li>La pile contient ce qui était demandé (<code>#stack li.layer .l-name</code>, de haut en bas), couches masquées comprises (<code>.off</code>).</li>
+<li>Le fichier téléchargé existe, son extension correspond au format, ses dimensions correspondent à « Sortie en L × H px ».</li>
+<li>Vidéo : durée ≈ durée réglée ; piste son présente seulement si demandée et disponible.</li>
+<li>Regarde le résultat (capture de <code>#view</code> ou ouverture du fichier) : effet visible, pas d’image noire ou vide.</li>
+<li>Aucun toast d’erreur, aucune erreur dans la console.</li>
+</ul></section>
+<section id="fr-limites-et-erreurs" lang="fr"><h2><span class="n">11</span><span>Limites et erreurs</span></h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Message (<code>#toast</code> ou page)</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Ton navigateur ne gère pas WebGL2… »</td>
+<td>pas de WebGL2 : changer de navigateur ou de drapeaux</td>
+</tr>
+<tr>
+<td>« Impossible d’ouvrir cette image. »</td>
+<td>image illisible par le navigateur</td>
+</tr>
+<tr>
+<td>« Cette vidéo ne peut pas être lue par le navigateur. »</td>
+<td>codec non pris en charge : convertir (MP4 H.264)</td>
+</tr>
+<tr>
+<td>« Format non reconnu. »</td>
+<td>ni image, ni vidéo, ni <code>.json</code></td>
+</tr>
+<tr>
+<td>« Importe d’abord une image ou une vidéo. »</td>
+<td>export sans média</td>
+</tr>
+<tr>
+<td>« Ton navigateur ne sait pas encoder de vidéo : exporte une image. »</td>
+<td>ni WebCodecs ni MediaRecorder</td>
+</tr>
+<tr>
+<td>« L’export a échoué : … » / « L’export vidéo a échoué : … »</td>
+<td>erreur d’export (souvent mémoire ou taille) : réduire la résolution ou la durée</td>
+</tr>
+<tr>
+<td>« Ce fichier n’est pas un projet Texture Lab. »</td>
+<td>JSON sans <code>stack</code></td>
+</tr>
+<tr>
+<td>« Ajoute d’abord des effets. »</td>
+<td>enregistrer un préréglage avec une pile vide</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>Images importées réduites au-delà de 8192 px (3072 px en mobile / tablette).</li>
+<li>Chromium headless n’a souvent pas H.264 : la vidéo sort alors en VP9 dans un MP4. Le rendu logiciel rend l’export vidéo lent : commence par une durée courte.</li>
+<li>Le MP4 WebCodecs est assemblé en mémoire : longues vidéos en 4K = lourd.</li>
+</ul></section>
+<section id="fr-logique-a-suivre-pour-chaque-tache" lang="fr"><h2><span class="n">12</span><span>Logique à suivre pour chaque tâche</span></h2>
+<ol>
+<li>Clarifier : quel fichier, quel rendu (préréglage, effets, réglages), quel format, quelle taille, quelle durée.</li>
+<li>Importer le fichier de l’utilisateur et attendre <code>#srcName</code>.</li>
+<li>Construire la pile, régler, animer si demandé ; mettre en pause pour vérifier l’aperçu.</li>
+<li>Régler la sortie, lire « Sortie en L × H px ».</li>
+<li>Exporter, récupérer le téléchargement, vérifier (§ 10).</li>
+<li>Rendre le fichier, et proposer <code>texture-lab-projet.json</code> pour refaire ou ajuster plus tard.</li>
+</ol></section>
+<section id="en-intro" lang="en"><p>This document is for AI agents (Claude Code, Codex, or any agent driving a browser through Playwright / CDP). It explains how to use <strong>Texture Lab</strong> (<code>app.html</code>): import an image or a video, stack and tune effects (dither, halftone, VHS, glitch, gradient maps…), animate settings and export to PNG, JPEG or video.</p>
+<p>It lives in two places, always identical: <code>AGENTS.md</code> (Markdown, French then English) and the page <code>agent/index.html</code>. Short summary: <code>llms.txt</code>.</p>
+<p>Entry points discoverable without JavaScript: <code>index.html</code> and <code>docs.html</code> declare <code>&lt;link rel="alternate" type="text/markdown" href="../AGENTS.md"&gt;</code>, <code>&lt;link rel="help" href="../agent/"&gt;</code> and <code>&lt;link rel="alternate" type="text/plain" href="../llms.txt"&gt;</code>, and contain an HTML comment and a <code>&lt;noscript&gt;</code> pointing here. <code>robots.txt</code> allows everything and lists <code>llms.txt</code> and <code>AGENTS.md</code>.</p></section>
+<section id="en-golden-rule" lang="en"><h2><span class="n">01</span><span>Golden rule</span></h2>
+<p>Texture Lab applies effects to the file the user provides. It is <strong>not</strong> an image generator.</p>
+<ul>
+<li><strong>Only work on the files the user gives you.</strong> The built-in example image (“Image d’exemple” button) is for testing; never deliver it instead of the user’s file.</li>
+<li><strong>Do not add brand text or visuals</strong> without approval. The “Incrustation VHS” effect draws text (default <code>PLAY ▶</code> and <code>OCT. 23 1994</code>): do not replace it with a name, slogan or date you made up.</li>
+<li>Never replace a missing or unreadable file with a “close enough” one. Say what is missing.</li>
+<li><strong>No API key, no online service.</strong> Texture Lab ships and calls no AI. Never ask the user for a key.</li>
+<li><strong>Everything is local</strong>: reading, rendering (WebGL2) and encoding happen in the browser. Nothing is uploaded; only the interface fonts load from the web (Google Fonts, Fontshare).</li>
+<li><strong>There is no public JavaScript API.</strong> You drive the interface (§ 4). The <code>window.TL</code> object exists but is internal (§ 6).</li>
+</ul>
+<p>After every action, check the state (displayed text, <code>#stack</code>, downloaded file). <strong>A click is not proof of success.</strong></p></section>
+<section id="en-getting-started" lang="en"><h2><span class="n">02</span><span>Getting started</span></h2>
+<h3 id="en-getting-started-serving-the-app">Serving the app</h3>
+<p>The repository is a static site: <code>index.html</code> (home), <code>app.html</code> (the app, one self-contained file), <code>docs.html</code> (docs), <code>agent/index.html</code> (this page), <code>AGENTS.md</code>, <code>llms.txt</code>, <code>robots.txt</code>, <code>assets/</code> (styles, fonts and images of the pages).</p>
+<pre><code class="language-bash">python3 -m http.server 8000
+# then open http://127.0.0.1:8000/app.html
+</code></pre>
+<ul>
+<li><code>app.html?demo</code> loads the example image right away.</li>
+<li><code>file://</code> works too (the app needs no request); only the home-screen manifest is skipped.</li>
+<li>Online: <code>https://texture.binksdesign.com/app.html</code>.</li>
+</ul>
+<h3 id="en-getting-started-browser">Browser</h3>
+<ul>
+<li><strong>WebGL2 is required.</strong> Without it the app replaces the page with a message (“Ton navigateur ne gère pas WebGL2…”).</li>
+<li>In GPU-less (headless) Chromium, launch with <code>--use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist</code>.</li>
+<li>Software rendering is slow: the preview loop can stop Playwright from seeing an element as “stable”. Pause playback (<code>#playBtn</code> or the Space key) before chaining clicks, or fire the click inside the page (<code>element.click()</code>, <code>locator.dispatch_event('click')</code>).</li>
+<li>Use a dedicated test profile: the session (effect stack and output) is stored per origin (§ 7).</li>
+<li>Use a viewport ≥ 900 px wide for the desktop layout described here. Below that the app switches to its mobile layout (§ 9).</li>
+</ul></section>
+<section id="en-typical-flow" lang="en"><h2><span class="n">03</span><span>Typical flow</span></h2>
+<ol>
+<li>Open <code>app.html</code>.</li>
+<li>Import: <code>set_input_files('#file', path)</code>. Import is <strong>asynchronous</strong>: wait until <code>#srcName</code> shows the file name (or <code>window.TL.ready</code> is <code>true</code>).</li>
+<li>Build the stack: click a preset <code>#presets .preset</code> and/or effects <code>#lib .tile[data-id="…"]</code>.</li>
+<li>Tune the selected effect in <code>#fxPanel</code> (tab <code>.tab[data-tab="fx"]</code>).</li>
+<li>Pick the output in <code>#outPanel</code> (tab <code>.tab[data-tab="out"]</code>).</li>
+<li>Export: click <code>#exportBtn</code> and wait for the download event.</li>
+<li>Check the file (§ 10).</li>
+</ol>
+<pre><code class="language-python">page.goto(&quot;http://127.0.0.1:8000/app.html&quot;)
+page.set_input_files(&quot;#file&quot;, &quot;photo.jpg&quot;)
+page.wait_for_selector(&quot;#srcName:has-text('photo.jpg')&quot;)
+page.click(&quot;#playBtn&quot;)                                   # pause: steadier clicks
+page.click('#presets .preset:has-text(&quot;VHS 1994&quot;)')
+page.click('.tab[data-tab=&quot;out&quot;]')
+page.click('#outPanel .seg button:has-text(&quot;JPEG&quot;)')
+with page.expect_download(timeout=120_000) as dl:
+    page.click(&quot;#exportBtn&quot;)
+dl.value.save_as(&quot;photo-texturelab.jpg&quot;)
+</code></pre></section>
+<section id="en-interface-hooks-real-selectors" lang="en"><h2><span class="n">04</span><span>Interface hooks (real selectors)</span></h2>
+<h3 id="en-interface-hooks-real-selectors-static">Static</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Selector</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#file</code></td>
+<td>hidden file input (image/*, video/*) — fill it with <code>set_input_files</code></td>
+</tr>
+<tr>
+<td><code>#drop</code></td>
+<td>import area (click or drag and drop); <code>#srcName</code> = name of the loaded file</td>
+</tr>
+<tr>
+<td><code>#demoBtn</code>, <code>#emptyDemo</code></td>
+<td>load the example image (<code>#emptyDemo</code> also applies the Binks preset when the stack is empty)</td>
+</tr>
+<tr>
+<td><code>#emptyImport</code></td>
+<td>open the file picker (empty screen)</td>
+</tr>
+<tr>
+<td><code>#presets</code></td>
+<td>presets; <code>.more-presets</code> expands the full list</td>
+</tr>
+<tr>
+<td><code>#savePreset</code></td>
+<td>save the stack as a preset (opens a <code>prompt()</code>: handle the dialog)</td>
+</tr>
+<tr>
+<td><code>#stack</code></td>
+<td>effect stack; <code>#addFx</code> opens the library</td>
+</tr>
+<tr>
+<td><code>#libSearch</code>, <code>#cats</code>, <code>#lib</code></td>
+<td>search, family filters, library</td>
+</tr>
+<tr>
+<td><code>.tab[data-tab="lib"|"fx"|"out"]</code></td>
+<td>Effects / Settings / Output tabs</td>
+</tr>
+<tr>
+<td><code>#fxPanel</code></td>
+<td>settings of the selected effect</td>
+</tr>
+<tr>
+<td><code>#outPanel</code></td>
+<td>output settings</td>
+</tr>
+<tr>
+<td><code>#compareBtn</code>, <code>#surpriseBtn</code>, <code>#clearBtn</code></td>
+<td>Compare, Surprise me, Remove all</td>
+</tr>
+<tr>
+<td><code>#undoBtn</code>, <code>#redoBtn</code></td>
+<td>undo, redo</td>
+</tr>
+<tr>
+<td><code>#exportBtn</code></td>
+<td>export (desktop: exports directly; mobile: opens a summary)</td>
+</tr>
+<tr>
+<td><code>#modal</code>, <code>#mText</code>, <code>#mCancel</code></td>
+<td>export progress dialog, its text, Cancel</td>
+</tr>
+<tr>
+<td><code>#toast</code></td>
+<td>short message (success or error)</td>
+</tr>
+<tr>
+<td><code>#saveProj</code>, <code>#openProj</code>, <code>#projFile</code></td>
+<td>save / open a <code>.json</code> project (<code>#projFile</code> = hidden file input)</td>
+</tr>
+<tr>
+<td><code>#playBtn</code>, <code>#tRange</code>, <code>#muteBtn</code></td>
+<td>play / pause, position, sound (video)</td>
+</tr>
+<tr>
+<td><code>#view</code></td>
+<td>the preview canvas</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="en-interface-hooks-real-selectors-generated">Generated</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Selector</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#presets .preset</code></td>
+<td>a preset; text = its name. Custom preset: contains <code>.x</code> (delete)</td>
+</tr>
+<tr>
+<td><code>#lib .tile[data-id="&lt;id&gt;"]</code></td>
+<td>a library effect (added on click); class <code>added</code> when already in the stack</td>
+</tr>
+<tr>
+<td><code>#cats .chip[data-cat="&lt;family&gt;"]</code></td>
+<td>filter (<code>all</code>, <code>couleur</code>, <code>dither</code>, <code>trame</code>, <code>pixel</code>, <code>shader</code>, <code>grain</code>, <code>analog</code>, <code>glitch</code>, <code>distort</code>, <code>style</code>)</td>
+</tr>
+<tr>
+<td><code>#stack li.layer[data-uid]</code></td>
+<td>a layer (first in the list = top of the stack, applied last); <code>.l-name</code>, <code>.l-eye</code> (hide / show), <code>.l-del</code> (remove); classes <code>sel</code>, <code>off</code></td>
+</tr>
+<tr>
+<td><code>#fxPanel .fx-head h2</code></td>
+<td>name of the selected effect</td>
+</tr>
+<tr>
+<td><code>#fxPanel [data-a="anim"|"rand"|"reset"|"dup"]</code></td>
+<td>animate the effect, randomize, reset, duplicate</td>
+</tr>
+<tr>
+<td><code>#fxPanel .ctl</code></td>
+<td>one setting: label in <code>.ctl-l span</code>, then <code>input.rg</code> (slider), <code>select</code>, <code>input[type=color]</code>, <code>.switch[role=switch]</code> or <code>input.txt</code></td>
+</tr>
+<tr>
+<td><code>.anim-btn</code></td>
+<td>animate one setting; opens <code>.anim-box</code> (target value, motion, speed)</td>
+</tr>
+<tr>
+<td><code>#outPanel .seg button</code></td>
+<td>segmented choices: <code>Original</code>, <code>1:1</code>, <code>4:5</code>, <code>9:16</code>, <code>16:9</code>; <code>PNG</code>, <code>JPEG</code>, <code>Vidéo</code>; <code>24</code>, <code>25</code>, <code>30</code>, <code>60</code>; <code>Fluide</code>, <code>Net</code></td>
+</tr>
+<tr>
+<td><code>#outPanel .help</code></td>
+<td>the first one gives the exact size: “Sortie en W × H px”</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="en-interface-hooks-real-selectors-changing-a-value">Changing a value</h3>
+<p>Sliders listen to <code>input</code> then <code>change</code> (the <code>change</code> records the history step and the session):</p>
+<pre><code class="language-js">const ctl = [...document.querySelectorAll('#fxPanel .ctl')]
+  .find(c =&gt; c.querySelector('.ctl-l span')?.textContent === 'Taille de la trame');
+const r = ctl.querySelector('input.rg');
+r.value = 14;
+r.dispatchEvent(new Event('input'));
+r.dispatchEvent(new Event('change'));
+</code></pre>
+<p>Selects: <code>select.value = index; select.dispatchEvent(new Event('change'))</code> (the value is the option <strong>index</strong>). Colours: <code>input[type=color]</code> + <code>input</code> then <code>change</code>. Double-click on a slider = default value.</p></section>
+<section id="en-effects-presets-output" lang="en"><h2><span class="n">05</span><span>Effects, presets, output</span></h2>
+<ul>
+<li><strong>80 effects</strong> in 10 families: <code>couleur</code> (11), <code>dither</code> (5), <code>trame</code> (13), <code>pixel</code> (8), <code>shader</code> (6), <code>grain</code> (9), <code>analog</code> (6), <code>glitch</code> (9), <code>distort</code> (7), <code>style</code> (6). Ids, names and settings: <code>window.TL.DEFS</code> (§ 6) or the <a href="../docs.html#bibliotheque">documentation</a>.</li>
+<li>CPU effects (slower): <code>errdiff</code>, <code>pixelsort</code>, <code>jpeg</code>. Feedback effects: <code>datamosh</code>, <code>echo</code>.</li>
+<li><strong>20 presets</strong>: VHS 1994, Game Boy, Riso zine, Journal, Glitch club, Cyber CRT, Film 35 mm, Gravure, Verre cannelé, Terminal, Thermique, 1-bit Atkinson, Pixel sort, Photocopie, CMJN offset, Datamosh, PICO-8, Hologramme, Vitrail, Binks. A preset <strong>replaces</strong> the stack.</li>
+<li>Adding an effect or a preset with no media loaded loads the example image: import the user’s file <strong>first</strong>.</li>
+<li><strong>Blending</strong> per layer: opacity 0–100 % and 9 modes (Normal, Produit, Écran, Incrustation, Lumière tamisée, Addition, Différence, Couleur, Luminosité).</li>
+<li><strong>Animation</strong>: every numeric setting and the opacity; target value, motion (Va-et-vient, Montée en boucle, Pulsation, Dérive organique, Saccadé), speed in cycles per loop (rounded so it loops on the duration).</li>
+<li><strong>Output</strong>: framing <code>Original</code> / <code>1:1</code> / <code>4:5</code> / <code>9:16</code> / <code>16:9</code> (centred crop); resolution Originale, 4K, 1440p, 1080p, 720p (short side; 8192 px max or the GPU limit); PNG, JPEG (quality 50–100 %, 92 % by default) or Video (0.5–60 s for an image; 24 / 25 / 30 / 60 fps; for a video source: start, end, loop the source, keep the sound). Preview <code>Fluide</code> (1500 px) or <code>Net</code> (2600 px); <strong>export is always full resolution</strong>.</li>
+</ul>
+<h3 id="en-effects-presets-output-output-files">Output files</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Case</th>
+<th>File name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PNG / JPEG</td>
+<td><code>&lt;source name without extension&gt;-texturelab.png</code> / <code>.jpg</code></td>
+</tr>
+<tr>
+<td>Video (WebCodecs)</td>
+<td><code>&lt;name&gt;-texturelab.mp4</code> — H.264, else VP9 or AV1; AAC or Opus sound if “Garder le son”</td>
+</tr>
+<tr>
+<td>Video (real-time MediaRecorder fallback)</td>
+<td><code>&lt;name&gt;-texturelab.mp4</code> or <code>.webm</code>, 1080p max, no sound</td>
+</tr>
+<tr>
+<td>Project</td>
+<td><code>texture-lab-projet.json</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>With the example image, the source name is “Image d’exemple”. Files are delivered through a download link: listen for your driven browser’s <em>download</em> event (downloads folder). With a video source, PNG / JPEG export the frame shown at the current time.</p></section>
+<section id="en-the-internal-window-tl-object" lang="en"><h2><span class="n">06</span><span>The internal <code>window.TL</code> object</span></h2>
+<p><code>app.html</code> exposes <code>window.TL</code> for its own tests. <strong>It is not a public API</strong>: nothing is versioned or guaranteed. Use it mostly to read.</p>
+<pre><code class="language-js">TL.ready            // true once an image or a video is loaded
+TL.st.stack         // [{uid, id, on, mix, blend, v:{…}, anim:{…}}] — bottom to top
+TL.st.out           // {aspect, res, fmt, dur, fps, inT, outT, loopSrc, audio, quality, jpgQ}
+TL.DEFS             // the 80 effect definitions: {id: {name, cat, params:[{k, label, type, min, max, def, options}]}}
+TL.outDims(true)    // {w, h, crop}: exact export size
+TL.addFx('halftone')   // adds an effect on top of the stack (history and session included)
+TL.loadDemo()          // loads the example image
+TL.setPlaying(false)   // pause
+TL.runExport()         // runs the export with the current output (like #exportBtn on desktop)
+</code></pre>
+<p>Do not modify <code>TL.st</code> directly: history and session would not be updated. To force exact values, go through the interface (§ 4) or a project file (§ 7).</p></section>
+<section id="en-persistent-state-and-projects" lang="en"><h2><span class="n">07</span><span>Persistent state and projects</span></h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Where</th>
+<th>Key / file</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>texturelab.session</code></td>
+<td><code>{stack, out}</code> — rewritten on every change, read on load (a <code>video</code> output falls back to <code>png</code>)</td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>texturelab.presets</code></td>
+<td><code>[{name, stack}]</code> — custom presets</td>
+</tr>
+<tr>
+<td>file</td>
+<td><code>texture-lab-projet.json</code></td>
+<td><code>{app: "texturelab", v: 1, stack, out}</code></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>The media is never stored</strong>: after a reload the stack comes back but <code>TL.ready</code> is <code>false</code>; import the file again.</li>
+<li>History (undo / redo, 120 steps) is not kept.</li>
+<li><code>#projFile</code> (or a <code>.json</code> dropped on the page) opens a project: unknown effects are skipped, the example image is loaded if no media is. Each layer must hold <strong>all</strong> its settings in <code>v</code> (missing values are not filled in): start from a project saved by the app, then edit its values.</li>
+<li>To start fresh: <code>#clearBtn</code>, or <code>localStorage.removeItem('texturelab.session')</code> then reload.</li>
+</ul></section>
+<section id="en-keyboard" lang="en"><h2><span class="n">08</span><span>Keyboard</span></h2>
+<p><code>Ctrl</code>/<code>⌘</code> + <code>Z</code> undo; <code>Ctrl</code>/<code>⌘</code> + <code>Shift</code> + <code>Z</code> or <code>Ctrl</code>/<code>⌘</code> + <code>Y</code> redo; <code>Space</code> play / pause; hold <code>C</code> = original; <code>Delete</code> / <code>Backspace</code> = remove the selected layer; <code>Escape</code> closes a sheet or dialog (mobile). Single keys are ignored while typing in a field.</p></section>
+<section id="en-mobile-layout" lang="en"><h2><span class="n">09</span><span>Mobile layout</span></h2>
+<p>Below 900 px wide (or a phone in landscape), panels move into sheets: tab bar <code>#mTabs</code> with <code>button[data-sheet="lib"|"stack"|"fx"|"out"|"media"]</code>, sheet <code>#sheet</code>. The same elements (<code>#lib</code>, <code>#stack</code>, <code>#fxPanel</code>, <code>#outPanel</code>, <code>#drop</code>…) are moved there, never duplicated. <code>#exportBtn</code> opens a summary whose <code>#xGo</code> button starts the export; when the browser can share files, a “C’est prêt” dialog offers “Télécharger” (<code>#dlBtn</code>) or “Enregistrer ou partager” (<code>#shBtn</code>). For an agent, the desktop layout is simpler.</p></section>
+<section id="en-checks-before-handing-back" lang="en"><h2><span class="n">10</span><span>Checks before handing back</span></h2>
+<ul>
+<li>The source file is the user’s (<code>#srcName</code>), not the example image.</li>
+<li>The stack holds what was asked (<code>#stack li.layer .l-name</code>, top to bottom), hidden layers included (<code>.off</code>).</li>
+<li>The downloaded file exists, its extension matches the format, its size matches “Sortie en W × H px”.</li>
+<li>Video: duration ≈ the set duration; sound track only if requested and available.</li>
+<li>Look at the result (screenshot of <code>#view</code> or open the file): the effect is visible, no black or empty image.</li>
+<li>No error toast, no error in the console.</li>
+</ul></section>
+<section id="en-limits-and-errors" lang="en"><h2><span class="n">11</span><span>Limits and errors</span></h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Message (<code>#toast</code> or page)</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“Ton navigateur ne gère pas WebGL2…”</td>
+<td>no WebGL2: change browser or flags</td>
+</tr>
+<tr>
+<td>“Impossible d’ouvrir cette image.”</td>
+<td>image the browser cannot decode</td>
+</tr>
+<tr>
+<td>“Cette vidéo ne peut pas être lue par le navigateur.”</td>
+<td>unsupported codec: convert (MP4 H.264)</td>
+</tr>
+<tr>
+<td>“Format non reconnu.”</td>
+<td>not an image, a video or a <code>.json</code></td>
+</tr>
+<tr>
+<td>“Importe d’abord une image ou une vidéo.”</td>
+<td>export with no media</td>
+</tr>
+<tr>
+<td>“Ton navigateur ne sait pas encoder de vidéo : exporte une image.”</td>
+<td>neither WebCodecs nor MediaRecorder</td>
+</tr>
+<tr>
+<td>“L’export a échoué : …” / “L’export vidéo a échoué : …”</td>
+<td>export error (often memory or size): lower the resolution or duration</td>
+</tr>
+<tr>
+<td>“Ce fichier n’est pas un projet Texture Lab.”</td>
+<td>JSON without <code>stack</code></td>
+</tr>
+<tr>
+<td>“Ajoute d’abord des effets.”</td>
+<td>saving a preset with an empty stack</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>Imported images are scaled down beyond 8192 px (3072 px on mobile / tablet).</li>
+<li>Headless Chromium often lacks H.264: video then comes out as VP9 in an MP4. Software rendering makes video export slow: start with a short duration.</li>
+<li>The WebCodecs MP4 is assembled in memory: long 4K videos are heavy.</li>
+</ul></section>
+<section id="en-logic-for-every-task" lang="en"><h2><span class="n">12</span><span>Logic for every task</span></h2>
+<ol>
+<li>Clarify: which file, which look (preset, effects, settings), which format, which size, which duration.</li>
+<li>Import the user’s file and wait for <code>#srcName</code>.</li>
+<li>Build the stack, tune, animate if asked; pause to check the preview.</li>
+<li>Set the output, read “Sortie en W × H px”.</li>
+<li>Export, grab the download, check (§ 10).</li>
+<li>Hand back the file, and offer <code>texture-lab-projet.json</code> to redo or adjust later.</li>
+</ol></section>
+    </article>
+  </div>
+</main>
+<footer class="foot doc-foot">
+  <div class="in-w foot-in">
+    <span class="foot-l"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="#111"><rect x="3" y="3" width="4" height="4"/><rect x="11" y="3" width="4" height="4"/><rect x="7" y="7" width="4" height="4"/><rect x="15" y="7" width="4" height="4"/><rect x="3" y="11" width="4" height="4"/><rect x="11" y="11" width="4" height="4"/><rect x="7" y="15" width="4" height="4"/><rect x="15" y="15" width="4" height="4"/><rect x="3" y="19" width="2" height="2"/><rect x="11" y="19" width="2" height="2"/><rect x="19" y="3" width="2" height="2"/><rect x="19" y="11" width="2" height="2"/></g><rect x="17" y="17" width="4" height="4" fill="#ff5500"/></svg>Texture Lab · by binks design</span>
+    <ul class="foot-r">
+      <li><a href="../docs.html">Documentation</a></li>
+      <li><a href="../agent/index.html">Agents IA</a></li>
+      <li><a href="mailto:graphistedubinks@gmail.com">graphistedubinks@gmail.com</a></li>
+      <li><a class="pillk" href="https://www.instagram.com/graphiste.binks/" target="_blank" rel="noopener">Instagram @graphiste.binks</a></li>
+    </ul>
+    <small>Gratuit, sans compte, tout est calculé dans ton navigateur. Polices de ces pages : Clash Display (<a href="../assets/fonts/ClashDisplay-FFL.txt">licence FFL</a>) et Instrument Sans (<a href="../assets/fonts/InstrumentSans-OFL.txt">licence OFL</a>). Image d’exemple de l’app et des captures : photo de Dwayne Joe (Unsplash).</small>
+  </div>
+</footer>
+</div>
+</body>
+</html>
