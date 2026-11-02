@@ -8,6 +8,57 @@ Points d’entrée découvrables sans JavaScript : `index.html` et `docs.html` d
 
 ---
 
+## 0. API pour agents : `window.BinksyAPI`, WebMCP et page MCP
+
+L’app expose une **API JavaScript publique et versionnée** (`apiVersion: "1"`) : `window.BinksyAPI`, présente dans `app.html` dès le chargement. C’est la façon la plus fiable de piloter l’app : chaque méthode appelle la même logique que l’interface (l’écran se met à jour, l’enregistrement automatique suit), toutes sont asynchrones, renvoient du JSON (pas de nœuds DOM ni de données binaires lourdes, sauf les fichiers exportés en base64) et rejettent avec `{ code, message }` en cas d’erreur. Les **mêmes outils** sont enregistrés en **WebMCP** quand le navigateur le permet (`document.modelContext.registerTool()`, ou `navigator.modelContext` sur les anciennes préversions) ; sans WebMCP, rien ne change. Page dédiée : [`mcp/`](mcp/) (agent dans le navigateur, Claude Code / Codex / Hermes / OpenCode via Playwright MCP, prompt prêt à copier).
+
+| Outil WebMCP | Méthode `BinksyAPI` | Rôle |
+| --- | --- | --- |
+| `texturelab_describe` | `describe()` | Décrit Texture Lab (pile d'effets de texture sur une image ou une vidéo, export PNG/JPEG/vidéo) et liste ses outils avec leurs schémas JSON. |
+| `texturelab_get_state` | `getState()` | État courant : média chargé (nom, type, taille ; le média n'est jamais enregistré), pile d'effets (du bas vers le haut, avec uid et réglages), sortie et taille exacte de l'export. |
+| `texturelab_importer` | `importer()` | Importe l'image (PNG, JPEG, WebP, GIF, AVIF, SVG…) ou la vidéo (MP4, WebM, MOV) de l'utilisateur, ou un projet texture-lab-projet.json, comme un glisser-déposer. |
+| `texturelab_exporter` | `exporter()` | Exporte en pleine résolution sans téléchargement forcé : png, jpg, video (MP4 WebCodecs, sinon WebM) ou project (texture-lab-projet.json). |
+| `texturelab_lister_effets` | `listerEffets()` | Liste les 80 effets (id, nom, famille) ; avec details: true, leurs réglages (clé, libellé, type, min, max, défaut, options). |
+| `texturelab_lister_presets` | `listerPresets()` | Liste les 20 préréglages intégrés et ceux enregistrés par l’utilisateur, avec leurs effets. |
+| `texturelab_appliquer_preset` | `appliquerPreset()` | Applique un préréglage par son nom (ex. « VHS 1994 », « Game Boy ») : il REMPLACE la pile. |
+| `texturelab_ajouter_effet` | `ajouterEffet()` | Ajoute un effet en haut de la pile (appliqué en dernier), avec des réglages optionnels. |
+| `texturelab_regler_effet` | `reglerEffet()` | Règle une couche de la pile : réglages, visibilité, opacité (0–1), mode de fusion (Normal, Produit, Écran, Incrustation, Lumière tamisée, Addition, Différence, Couleur, Luminosité), ou réinitialisation. |
+| `texturelab_retirer_effet` | `retirerEffet()` | Retire une couche de la pile. |
+| `texturelab_deplacer_effet` | `deplacerEffet()` | Déplace une couche dans la pile : position 0 = en bas (appliquée en premier). |
+| `texturelab_animer_effet` | `animerEffet()` | Anime un réglage numérique d'une couche en boucle parfaite (ou l'opacité avec param: "_mix"), ou coupe son animation. |
+| `texturelab_regler_sortie` | `reglerSortie()` | Règle la sortie : cadrage (orig, 1:1, 4:5, 9:16, 16:9), résolution (orig, 2160, 1440, 1080, 720 = petit côté), format (png, jpg, video), qualité JPEG 0,5–1, durée vidéo (s), images/s (24, 25, 30, 60), source vidéo (inT, outT, loopSrc, audio), aperçu (fast, full). |
+| `texturelab_annuler` | `annuler()` | Annule la dernière modification de la pile ou de la sortie (redo: true pour rétablir). |
+| `texturelab_reset` | `reset()` | Vide la pile d'effets (comme « Tout retirer »). |
+
+Fichiers en entrée : `importer({ files: [{ name, type, dataBase64 | text | url (data: seulement) }] })`, comme un glisser-déposer. En sortie : `exporter({ format, … })` → `{ files: [{ name, type, dataBase64 }] }`, **sans téléchargement** sauf `download: true`. Les actions destructives (`reset`) exigent `confirm: true`, après accord de l’utilisateur.
+
+```js
+// Découvrir l’app et la liste des effets
+await BinksyAPI.ready();
+const info = await BinksyAPI.describe();
+const { effects } = await BinksyAPI.listerEffets({ cat: 'trame', details: true });   // id, nom, réglages
+const { presets } = await BinksyAPI.listerPresets();   // VHS 1994, Game Boy, Riso zine…
+```
+
+```js
+// Importer une image en base64 et construire la pile
+await BinksyAPI.importer({ files: [{ name: 'photo.jpg', type: 'image/jpeg', dataBase64: b64 }] });
+await BinksyAPI.appliquerPreset({ name: 'VHS 1994' });            // remplace la pile
+const { layer } = await BinksyAPI.ajouterEffet({ id: 'grain', params: { amount: 0.3 } });
+await BinksyAPI.reglerEffet({ uid: layer.uid, opacity: 0.8, blend: 'Écran' });
+```
+
+```js
+// Exporter (rien n’est téléchargé sauf download: true)
+await BinksyAPI.reglerSortie({ aspect: '4:5', res: '1080' });
+const { files } = await BinksyAPI.exporter({ format: 'jpg' });   // png, jpg, video ou project
+files[0].name;   // photo-texturelab.jpg  (+ width, height, dataBase64)
+```
+
+Importe toujours le média de l’utilisateur **avant** d’ajouter des effets : sans média, l’API refuse (`NO_SOURCE`) au lieu de charger l’image d’exemple. Le média n’est pas enregistré : après rechargement, la pile revient, réimporte le fichier. Avec Playwright : `page.evaluate("BinksyAPI.describe()")`, ou `browser_evaluate` dans Playwright MCP (`npx @playwright/mcp@latest`). Les sélecteurs de l’interface (plus bas) restent valables.
+
+---
+
 ## 1. Règle fondamentale
 
 Texture Lab applique des effets au fichier que l’utilisateur fournit. Ce n’est **pas** un générateur d’images.
@@ -17,7 +68,7 @@ Texture Lab applique des effets au fichier que l’utilisateur fournit. Ce n’e
 * Ne remplace pas un fichier manquant ou illisible par un fichier « approchant ». Dis ce qui manque.
 * **Aucune clé API, aucun service en ligne.** Texture Lab n’embarque aucune IA et n’en appelle aucune. Ne demande jamais de clé à l’utilisateur.
 * **Tout est local** : lecture, calcul (WebGL2) et encodage se font dans le navigateur. Rien n’est envoyé à un serveur ; seules les polices de l’interface sont chargées en ligne (Google Fonts, Fontshare).
-* **Il n’y a pas d’API JavaScript publique.** On pilote l’interface (§ 4). L’objet `window.TL` existe mais il est interne (§ 6).
+* **API pour agents : `window.BinksyAPI`** (et outils WebMCP, § 0). C’est la voie conseillée : mêmes actions que l’interface, résultats en JSON, aucun clic à simuler. L’interface reste pilotable par ses sélecteurs (§ 4). L’objet `window.TL` reste interne (§ 6).
 
 Après chaque action, vérifie l’état (texte affiché, `#stack`, fichier téléchargé). **Un clic n’est pas une preuve de réussite.**
 
@@ -156,7 +207,7 @@ Avec l’image d’exemple, le nom de la source est « Image d’exemple ». Les
 
 ## 6. L’objet interne `window.TL`
 
-`app.html` expose `window.TL` pour ses propres tests. **Ce n’est pas une API publique** : rien n’est versionné ni garanti. Utilise-le surtout en lecture.
+`app.html` expose `window.TL` pour ses propres tests. **Ce n’est pas l’API publique** (c’est `window.BinksyAPI`, § 0) : rien n’est versionné ni garanti. Utilise-le surtout en lecture.
 
 ```js
 TL.ready            // true quand une image ou une vidéo est chargée
@@ -254,6 +305,21 @@ Entry points discoverable without JavaScript: `index.html` and `docs.html` decla
 
 ---
 
+## 0. Agent API: `window.BinksyAPI`, WebMCP and MCP page
+
+The app exposes a **public, versioned JavaScript API** (`apiVersion: "1"`): `window.BinksyAPI`, present in `app.html` from load. It is the most reliable way to drive the app: every method runs the same logic as the UI (screen updates, auto-save follows), is async, returns JSON and rejects with `{ code, message }`. The **same tools** are registered as **WebMCP** tools when the browser supports it (`document.modelContext.registerTool()`, or `navigator.modelContext` in older previews). Dedicated page: [`mcp/`](mcp/).
+
+Tools: `texturelab_describe` (`describe()`), `texturelab_get_state` (`getState()`), `texturelab_importer` (`importer()`), `texturelab_exporter` (`exporter()`), `texturelab_lister_effets` (`listerEffets()`), `texturelab_lister_presets` (`listerPresets()`), `texturelab_appliquer_preset` (`appliquerPreset()`), `texturelab_ajouter_effet` (`ajouterEffet()`), `texturelab_regler_effet` (`reglerEffet()`), `texturelab_retirer_effet` (`retirerEffet()`), `texturelab_deplacer_effet` (`deplacerEffet()`), `texturelab_animer_effet` (`animerEffet()`), `texturelab_regler_sortie` (`reglerSortie()`), `texturelab_annuler` (`annuler()`), `texturelab_reset` (`reset()`).
+
+Files in: `importer({ files: [{ name, type, dataBase64 | text | url (data: only) }] })`. Files out: `exporter({ format, … })` → `{ files: [{ name, type, dataBase64 }] }`, **no download** unless `download: true`. Destructive actions (`reset`) need `confirm: true`, after the user agrees.
+
+```js
+await BinksyAPI.ready();
+const { tools } = await BinksyAPI.describe();   // JSON schemas of every tool
+```
+
+---
+
 ## 1. Golden rule
 
 Texture Lab applies effects to the file the user provides. It is **not** an image generator.
@@ -263,7 +329,7 @@ Texture Lab applies effects to the file the user provides. It is **not** an imag
 * Never replace a missing or unreadable file with a “close enough” one. Say what is missing.
 * **No API key, no online service.** Texture Lab ships and calls no AI. Never ask the user for a key.
 * **Everything is local**: reading, rendering (WebGL2) and encoding happen in the browser. Nothing is uploaded; only the interface fonts load from the web (Google Fonts, Fontshare).
-* **There is no public JavaScript API.** You drive the interface (§ 4). The `window.TL` object exists but is internal (§ 6).
+* **Agent API: `window.BinksyAPI`** (and WebMCP tools, § 0). This is the recommended way: same actions as the UI, JSON results, no clicks to simulate. The UI can still be driven through its selectors (§ 4). The `window.TL` object stays internal (§ 6).
 
 After every action, check the state (displayed text, `#stack`, downloaded file). **A click is not proof of success.**
 
@@ -402,7 +468,7 @@ With the example image, the source name is “Image d’exemple”. Files are de
 
 ## 6. The internal `window.TL` object
 
-`app.html` exposes `window.TL` for its own tests. **It is not a public API**: nothing is versioned or guaranteed. Use it mostly to read.
+`app.html` exposes `window.TL` for its own tests. **It is not the public API** (that is `window.BinksyAPI`, § 0): nothing is versioned or guaranteed. Use it mostly to read.
 
 ```js
 TL.ready            // true once an image or a video is loaded

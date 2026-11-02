@@ -3,7 +3,7 @@
 > Outil d'effets de texture 100 % navigateur, par Binks Design. Il applique à une image ou une vidéo une pile d'effets réglables — 80 effets en 10 familles (couleur, dither, trame, pixel, shader, grain & matière, VHS & analogique, glitch, distorsion, stylisé), 20 préréglages, opacité et 9 modes de fusion par couche — anime n'importe quel réglage en boucle parfaite et exporte en PNG, JPEG ou vidéo (MP4 via WebCodecs). WebGL2 requis. Aucune clé API, aucun compte, rien n'est envoyé à un serveur.
 > Browser-only texture effects tool by Binks Design. It applies a stack of tunable effects to an image or a video — 80 effects in 10 families, 20 presets, per-layer opacity and 9 blend modes — animates any setting as a seamless loop and exports PNG, JPEG or video (MP4 through WebCodecs). Requires WebGL2. No API key, no account, nothing is uploaded.
 
-There is no public JavaScript API. AI agents (Claude Code, Codex…) drive the interface of app.html through stable selectors: #file (import), #presets .preset, #lib .tile[data-id], #stack li.layer, #fxPanel, #outPanel, #exportBtn (download). window.TL exists but is internal and unversioned (read-only use advised).
+AI agents (Claude Code, Codex, Hermes, OpenCode, browser agents) should use the public JavaScript API window.BinksyAPI in app.html (apiVersion 1): await BinksyAPI.describe() lists the tools; importer({files:[{name,type,dataBase64}]}) the user's image/video first, appliquerPreset, ajouterEffet, reglerEffet, reglerSortie, exporter({format:'png'|'jpg'|'video'|'project'}) → {files:[{name,type,dataBase64}]} (no download unless download:true); errors reject with {code,message}. The same tools are registered as WebMCP tools (texturelab_*) when the browser supports document.modelContext. Setup (WebMCP, Playwright MCP, prompt): mcp/. The UI can also be driven through stable selectors: #file (import), #presets .preset, #lib .tile[data-id], #stack li.layer, #fxPanel, #outPanel, #exportBtn (download). window.TL exists but is internal and unversioned (read-only use advised).
 Serve the folder over http (python3 -m http.server) and open app.html (app.html?demo loads the example image); file:// works too.
 State: localStorage texturelab.session ({stack, out}) and texturelab.presets; the media itself is never stored. Project file: texture-lab-projet.json.
 
@@ -12,6 +12,7 @@ Golden rule: only work on the user's own files; never deliver the built-in examp
 ## Docs
 
 - [AGENTS.md](AGENTS.md): full guide for AI agents (Markdown, French then English)
+- [mcp/](mcp/): MCP / AI agents page: window.BinksyAPI, WebMCP tools, Playwright MCP setup, ready-to-paste prompt
 - [agent/index.html](agent/index.html): same guide as an HTML page
 - [docs.html](docs.html): human documentation (French)
 
