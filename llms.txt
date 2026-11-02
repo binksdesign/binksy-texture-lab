@@ -5,7 +5,7 @@
 
 AI agents (Claude Code, Codex, Hermes, OpenCode, browser agents) should use the public JavaScript API window.BinksyAPI in app.html (apiVersion 1): await BinksyAPI.describe() lists the tools; importer({files:[{name,type,dataBase64}]}) the user's image/video first, appliquerPreset, ajouterEffet, reglerEffet, reglerSortie, exporter({format:'png'|'jpg'|'video'|'project'}) → {files:[{name,type,dataBase64}]} (no download unless download:true); errors reject with {code,message}. The same tools are registered as WebMCP tools (texturelab_*) when the browser supports document.modelContext. Setup (WebMCP, Playwright MCP, prompt): mcp/. The UI can also be driven through stable selectors: #file (import), #presets .preset, #lib .tile[data-id], #stack li.layer, #fxPanel, #outPanel, #exportBtn (download). window.TL exists but is internal and unversioned (read-only use advised).
 Serve the folder over http (python3 -m http.server) and open app.html (app.html?demo loads the example image); file:// works too.
-State: localStorage texturelab.session ({stack, out}) and texturelab.presets; the media itself is never stored. Project file: texture-lab-projet.json.
+State: localStorage texturelab.session ({stack, out}) and texturelab.presets; the imported media is auto-saved in IndexedDB (database texturelab-autosave, store media, key source) and restored on reload before the settings. Project file: texture-lab-projet.json.
 
 Golden rule: only work on the user's own files; never deliver the built-in example image instead, never add brand text or visuals without approval.
 

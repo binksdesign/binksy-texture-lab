@@ -70,7 +70,7 @@ const { layer } = await BinksyAPI.ajouterEffet({ id: &#x27;grain&#x27;, params: 
 await BinksyAPI.reglerEffet({ uid: layer.uid, opacity: 0.8, blend: &#x27;Écran&#x27; });</code></pre><h3>Exporter (rien n’est téléchargé sauf download: true)</h3><pre><code class="language-js">await BinksyAPI.reglerSortie({ aspect: &#x27;4:5&#x27;, res: &#x27;1080&#x27; });
 const { files } = await BinksyAPI.exporter({ format: &#x27;jpg&#x27; });   // png, jpg, video ou project
 files[0].name;   // photo-texturelab.jpg  (+ width, height, dataBase64)</code></pre>
-<p>Importe toujours le média de l’utilisateur <strong>avant</strong> d’ajouter des effets : sans média, l’API refuse (<code>NO_SOURCE</code>) au lieu de charger l’image d’exemple. Le média n’est pas enregistré : après rechargement, la pile revient, réimporte le fichier.</p><p>Avec Playwright : <code>page.evaluate("BinksyAPI.describe()")</code>, ou <code>browser_evaluate</code> dans Playwright MCP (<code>npx @playwright/mcp@latest</code>). Les sélecteurs de l’interface restent valables.</p></section>
+<p>Importe toujours le média de l’utilisateur <strong>avant</strong> d’ajouter des effets : sans média, l’API refuse (<code>NO_SOURCE</code>) au lieu de charger l’image d’exemple. Le média importé est gardé automatiquement dans le navigateur (IndexedDB) : après rechargement, le média, la pile et la sortie reviennent tels quels (attends <code>BinksyAPI.ready()</code>).</p><p>Avec Playwright : <code>page.evaluate("BinksyAPI.describe()")</code>, ou <code>browser_evaluate</code> dans Playwright MCP (<code>npx @playwright/mcp@latest</code>). Les sélecteurs de l’interface restent valables.</p></section>
 
 <section id="fr-regle-fondamentale" lang="fr"><h2><span class="n">01</span><span>Règle fondamentale</span></h2>
 <p>Texture Lab applique des effets au fichier que l’utilisateur fournit. Ce n’est <strong>pas</strong> un générateur d’images.</p>
@@ -336,7 +336,12 @@ TL.runExport()         // lance l’export avec la sortie courante (comme #expor
 <tr>
 <td><code>localStorage</code></td>
 <td><code>texturelab.session</code></td>
-<td><code>{stack, out}</code> — réécrit à chaque modification, relu au chargement (une sortie <code>video</code> repasse en <code>png</code>)</td>
+<td><code>{stack, out}</code> — réécrit à chaque modification, relu au chargement après le média (une sortie <code>video</code> repasse en <code>png</code> seulement si aucune vidéo n’est restaurée)</td>
+</tr>
+<tr>
+<td>IndexedDB</td>
+<td>base <code>texturelab-autosave</code>, magasin <code>media</code>, clé <code>source</code></td>
+<td>Le média importé : <code>{ id: 'source', name, type, blob }</code> (image d’exemple : <code>{ id: 'source', demo: true }</code>, sans copie). Remplacé à chaque nouvel import, restauré au démarrage <strong>avant</strong> les réglages. Stockage plein : petit message, l’app continue.</td>
 </tr>
 <tr>
 <td><code>localStorage</code></td>
@@ -351,10 +356,10 @@ TL.runExport()         // lance l’export avec la sortie courante (comme #expor
 </tbody>
 </table></div>
 <ul>
-<li><strong>Le média n’est jamais enregistré</strong> : après un rechargement, la pile revient mais <code>TL.ready</code> est <code>false</code> ; réimporte le fichier.</li>
+<li><strong>Le média est enregistré automatiquement</strong> (IndexedDB) : après un rechargement, le média revient d’abord, puis la pile et la sortie ; <code>TL.ready</code> repasse à <code>true</code> une fois la restauration finie (<code>await BinksyAPI.ready()</code>).</li>
 <li>L’historique (annuler / rétablir, 120 étapes) n’est pas conservé.</li>
 <li><code>#projFile</code> (ou un <code>.json</code> glissé sur la page) ouvre un projet : effets inconnus ignorés, image d’exemple chargée si aucun média. Chaque couche du projet doit contenir <strong>tous</strong> ses réglages dans <code>v</code> (les valeurs manquantes ne sont pas complétées) : pars d’un projet enregistré par l’app, puis modifie ses valeurs.</li>
-<li>Pour repartir de zéro : <code>#clearBtn</code>, ou <code>localStorage.removeItem('texturelab.session')</code> puis rechargement.</li>
+<li>Pour repartir de zéro : <code>#clearBtn</code>, ou <code>localStorage.removeItem('texturelab.session')</code> et <code>indexedDB.deleteDatabase('texturelab-autosave')</code> puis rechargement.</li>
 </ul></section>
 <section id="fr-clavier" lang="fr"><h2><span class="n">08</span><span>Clavier</span></h2>
 <p><code>Ctrl</code>/<code>⌘</code> + <code>Z</code> annuler ; <code>Ctrl</code>/<code>⌘</code> + <code>Maj</code> + <code>Z</code> ou <code>Ctrl</code>/<code>⌘</code> + <code>Y</code> rétablir ; <code>Espace</code> lecture / pause ; <code>C</code> maintenu = original ; <code>Suppr</code> / <code>Retour arrière</code> = retirer la couche sélectionnée ; <code>Échap</code> ferme panneau ou dialogue (mobile). Les touches simples sont ignorées pendant la saisie dans un champ.</p></section>
@@ -700,7 +705,12 @@ TL.runExport()         // runs the export with the current output (like #exportB
 <tr>
 <td><code>localStorage</code></td>
 <td><code>texturelab.session</code></td>
-<td><code>{stack, out}</code> — rewritten on every change, read on load (a <code>video</code> output falls back to <code>png</code>)</td>
+<td><code>{stack, out}</code> — rewritten on every change, read on load after the media (a <code>video</code> output falls back to <code>png</code> only when no video is restored)</td>
+</tr>
+<tr>
+<td>IndexedDB</td>
+<td>database <code>texturelab-autosave</code>, store <code>media</code>, key <code>source</code></td>
+<td>The imported media: <code>{ id: 'source', name, type, blob }</code> (example image: <code>{ id: 'source', demo: true }</code>, no copy). Replaced on every new import, restored at startup <strong>before</strong> the settings. Storage full: small notice, the app keeps working.</td>
 </tr>
 <tr>
 <td><code>localStorage</code></td>
@@ -715,10 +725,10 @@ TL.runExport()         // runs the export with the current output (like #exportB
 </tbody>
 </table></div>
 <ul>
-<li><strong>The media is never stored</strong>: after a reload the stack comes back but <code>TL.ready</code> is <code>false</code>; import the file again.</li>
+<li><strong>The media is auto-saved</strong> (IndexedDB): after a reload the media comes back first, then the stack and output; <code>TL.ready</code> is <code>true</code> again once restoration is done (<code>await BinksyAPI.ready()</code>).</li>
 <li>History (undo / redo, 120 steps) is not kept.</li>
 <li><code>#projFile</code> (or a <code>.json</code> dropped on the page) opens a project: unknown effects are skipped, the example image is loaded if no media is. Each layer must hold <strong>all</strong> its settings in <code>v</code> (missing values are not filled in): start from a project saved by the app, then edit its values.</li>
-<li>To start fresh: <code>#clearBtn</code>, or <code>localStorage.removeItem('texturelab.session')</code> then reload.</li>
+<li>To start fresh: <code>#clearBtn</code>, or <code>localStorage.removeItem('texturelab.session')</code> and <code>indexedDB.deleteDatabase('texturelab-autosave')</code> then reload.</li>
 </ul></section>
 <section id="en-keyboard" lang="en"><h2><span class="n">08</span><span>Keyboard</span></h2>
 <p><code>Ctrl</code>/<code>⌘</code> + <code>Z</code> undo; <code>Ctrl</code>/<code>⌘</code> + <code>Shift</code> + <code>Z</code> or <code>Ctrl</code>/<code>⌘</code> + <code>Y</code> redo; <code>Space</code> play / pause; hold <code>C</code> = original; <code>Delete</code> / <code>Backspace</code> = remove the selected layer; <code>Escape</code> closes a sheet or dialog (mobile). Single keys are ignored while typing in a field.</p></section>

@@ -1635,7 +1635,30 @@ function restore(s) { const o = JSON.parse(s); st.stack = o.stack; Object.assign
 function undo() { if (!hist.past.length) return; hist.future.push(lastSnap); restore(hist.past.pop()); updUndo(); }
 function redo() { if (!hist.future.length) return; hist.past.push(lastSnap); restore(hist.future.pop()); updUndo(); }
 function updUndo() { $('#undoBtn').disabled = !hist.past.length; $('#redoBtn').disabled = !hist.future.length; }
-function saveLocal() { try { localStorage.setItem('texturelab.session', snap()); } catch (e) {} }
+function saveLocal() { if (booting) return; try { localStorage.setItem('texturelab.session', snap()); } catch (e) {} }
+let booting = true; /* vrai tant que le média puis les réglages ne sont pas restaurés au démarrage : aucune sauvegarde avant */
+
+/* ───────── Auto-save du média importé (IndexedDB, base « texturelab-autosave », 100 % local) ───────── */
+const MSTORE = (() => {
+  const DB = 'texturelab-autosave', ST = 'media', KEY = 'source'; let dbP = null, chain = Promise.resolve(), warned = false;
+  const open = () => dbP || (dbP = new Promise((ok, ko) => { let r; try { r = indexedDB.open(DB, 1); } catch (e) { ko(e); return; } r.onupgradeneeded = () => r.result.createObjectStore(ST, { keyPath: 'id' }); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); r.onblocked = () => ko(new Error('base bloquée')); }).catch(e => { dbP = null; throw e; }));
+  async function run(mode, fn) { const db = await open(); return new Promise((ok, ko) => { const tx = db.transaction(ST, mode), s = tx.objectStore(ST); const r = fn(s); tx.oncomplete = () => ok(r && r.result); tx.onerror = tx.onabort = () => ko(tx.error || (r && r.error) || new Error('transaction annulée')); }); }
+  const isQuota = e => !!e && (e.name === 'QuotaExceededError' || e.code === 22 || /quota/i.test(e.message || ''));
+  function warn(e) { if (isQuota(e)) { if (!warned) { warned = true; toast('Stockage du navigateur plein : ce média ne reviendra pas au rechargement.'); } } else console.warn('[Texture Lab] auto-save du média :', e); }
+  /* file : le fichier importé, ou 'demo' pour l'image d'exemple (non copiée), ou null pour tout effacer */
+  function save(file) {
+    if (booting) return chain;
+    const job = async () => {
+      if (file === null) return run('readwrite', s => s.delete(KEY));
+      const rec = file === 'demo' ? { id: KEY, demo: true } : { id: KEY, name: file.name, type: file.type, blob: file };
+      try { await run('readwrite', s => s.put(rec)); }
+      catch (e) { if (isQuota(e)) { try { await run('readwrite', s => s.delete(KEY)); } catch (e2) {} } throw e; }
+    };
+    return (chain = chain.then(job, job).catch(warn));
+  }
+  async function load() { try { return await run('readonly', s => s.get(KEY)) || null; } catch (e) { warn(e); return null; } }
+  return { save, load };
+})();
 
 /* ───────── Source ───────── */
 function outDims(full) {
@@ -1664,7 +1687,7 @@ async function loadImageURL(url, name) {
 async function loadFile(file) {
   if (!file) return;
   if (file.type.startsWith('video/') || /\.(mp4|mov|webm|m4v|mkv)$/i.test(file.name)) return loadVideo(file);
-  if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|avif|bmp|svg)$/i.test(file.name)) { const url = URL.createObjectURL(file); try { await loadImageURL(url, file.name); } catch (e) { toast("Impossible d'ouvrir cette image."); } return; }
+  if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|avif|bmp|svg)$/i.test(file.name)) { const url = URL.createObjectURL(file); try { await loadImageURL(url, file.name); } catch (e) { toast("Impossible d'ouvrir cette image."); return; } await MSTORE.save(file); return; }
   if (/\.json$/i.test(file.name)) return openProject(file);
   toast('Format non reconnu.');
 }
@@ -1672,7 +1695,7 @@ function loadVideo(file) {
   const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous'; v.src = URL.createObjectURL(file);
   v.addEventListener('loadeddata', async () => {
     const s = { type: 'video', el: v, w: v.videoWidth, h: v.videoHeight, name: file.name, dur: v.duration || 1, file, audio: null };
-    setSource(s);
+    setSource(s); MSTORE.save(file);
     try { const ac = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 }); s.audio = await ac.decodeAudioData(await file.arrayBuffer()); ac.close(); } catch (e) { s.audio = null; }
     renderOut();
   }, { once: true });
@@ -2132,7 +2155,7 @@ $('#libSearch').addEventListener('input', renderLib);
 $('#file').addEventListener('change', (e) => { loadFile(e.target.files[0]); e.target.value = ''; });
 $('#emptyImport').onclick = () => $('#file').click();
 const DEMO = (window.TL_DEMO || '');
-function loadDemo() { return loadImageURL(DEMO, "Image d'exemple"); }
+function loadDemo() { return loadImageURL(DEMO, "Image d'exemple").then(() => { MSTORE.save('demo'); }); }
 $('#demoBtn').onclick = () => loadDemo(); $('#emptyDemo').onclick = () => loadDemo().then(() => { if (!st.stack.length) applyPreset(PRESETS[PRESETS.length - 1], false); });
 const drop = $('#drop');
 ['dragenter', 'dragover'].forEach(ev => document.addEventListener(ev, (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); drop.classList.add('over'); } }));
@@ -2563,13 +2586,33 @@ if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) do
 /* ───────── Démarrage ───────── */
 renderPresets(); renderCats(); renderLib(); renderStack(); renderFx(); renderOut(); updUndo();
 $('#canvasWrap').hidden = true;
-try {
-  const saved = JSON.parse(localStorage.getItem('texturelab.session') || 'null');
-  if (saved && saved.stack && saved.stack.length) { st.stack = saved.stack.filter(i => DEFS[i.id]).map(i => ({ ...makeInst(i.id), ...i, v: { ...makeInst(i.id).v, ...i.v }, uid: 'u' + (uidN++) })); Object.assign(st.out, saved.out || {}); st.sel = st.stack.length ? st.stack[st.stack.length - 1].uid : null; }
-} catch (e) {}
-if (st.out.fmt === 'video') st.out.fmt = 'png';
-// Mode test : ?demo charge directement l'exemple
-if (/[?&]demo/.test(location.search)) loadDemo();
+/* au démarrage : le média importé d'abord (IndexedDB), puis les réglages (localStorage) */
+let savedSession = null; try { savedSession = JSON.parse(localStorage.getItem('texturelab.session') || 'null'); } catch (e) {}
+async function restoreMedia() {
+  if (/[?&]demo/.test(location.search)) return;
+  const rec = await MSTORE.load(); if (!rec) return;
+  if (rec.demo) { try { await loadImageURL(DEMO, "Image d'exemple"); } catch (e) {} return; }
+  if (!(rec.blob instanceof Blob)) return;
+  const f = rec.blob instanceof File ? rec.blob : new File([rec.blob], rec.name || 'média', { type: rec.type || rec.blob.type });
+  const prev = src; const t = $('#toast'); const tBefore = t ? t.textContent : '';
+  await loadFile(f);
+  const t0 = Date.now(); while (Date.now() - t0 < 30000 && !(src && src !== prev && src.name === f.name) && !(t && t.textContent !== tBefore && /Impossible|ne peut pas/.test(t.textContent))) await new Promise(r => setTimeout(r, 50));
+}
+function restoreSettings() {
+  try { const saved = savedSession;
+  if (saved && saved.stack && saved.stack.length) { st.stack = saved.stack.filter(i => DEFS[i.id]).map(i => ({ ...makeInst(i.id), ...i, v: { ...makeInst(i.id).v, ...i.v }, uid: 'u' + (uidN++) })); st.sel = st.stack.length ? st.stack[st.stack.length - 1].uid : null; }
+    if (saved && saved.out) Object.assign(st.out, saved.out); /* réglages de sortie rendus même quand la pile est vide */
+  } catch (e) {}
+  if (st.out.fmt === 'video' && !(src && src.type === 'video')) st.out.fmt = 'png';
+}
+const booted = (async () => {
+  try { await restoreMedia(); } catch (e) { console.warn('[Texture Lab] restauration du média :', e); }
+  restoreSettings();
+  if (src) { eng.resetFeedback(); if (src.type === 'video') { src.el.currentTime = st.out.inT || 0; } }
+  renderAll(); hist.past = []; hist.future = []; lastSnap = snap(); updUndo(); booting = false; saveLocal();
+  // Mode test : ?demo charge directement l'exemple
+  if (/[?&]demo/.test(location.search)) await loadDemo();
+})();
 applyMode();
 window.TL = { st, eng, DEFS, addFx, loadDemo, applyPreset, render: () => draw(), outDims, hooks, MOB, openSheet, closeSheet, applyMode, runExport, setPlaying, view: () => view, get ready() { return !!src; } };
 /* ── outils communs de l'API agents (copie locale à cette app, aucune dépendance) */
@@ -2611,8 +2654,8 @@ const AGENT = (() => {
   function expose({ app, version, description, tools, methods }) {
     const api = {};
     const norm = e => (e && e.code && e.message) ? { code: e.code, message: e.message } : { code: 'ERROR', message: String(e && e.message || e) };
-    for (const t of tools) { const fn = methods[t.method]; if (!fn) continue; api[t.method] = async (args = {}) => { try { return await fn(args || {}); } catch (e) { throw norm(e); } }; }
-    api.ready = async () => (methods.ready ? methods.ready() : { ready: true });
+    for (const t of tools) { const fn = methods[t.method]; if (!fn) continue; api[t.method] = async (args = {}) => { try { await booted; return await fn(args || {}); } catch (e) { throw norm(e); } }; }
+    api.ready = async () => { await booted; return methods.ready ? methods.ready() : { ready: true }; };
     api.describe = async () => ({ app, version, apiVersion: '1', description, tools: tools.map(t => ({ name: t.name, method: t.method, description: t.description, inputSchema: t.inputSchema, ...(t.outputSchema ? { outputSchema: t.outputSchema } : {}) })) });
     Object.defineProperty(window, 'BinksyAPI', { value: Object.freeze(api), configurable: true, enumerable: true });
     registerWebMCP(tools, api);

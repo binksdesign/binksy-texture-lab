@@ -55,7 +55,7 @@ const { files } = await BinksyAPI.exporter({ format: 'jpg' });   // png, jpg, vi
 files[0].name;   // photo-texturelab.jpg  (+ width, height, dataBase64)
 ```
 
-Importe toujours le média de l’utilisateur **avant** d’ajouter des effets : sans média, l’API refuse (`NO_SOURCE`) au lieu de charger l’image d’exemple. Le média n’est pas enregistré : après rechargement, la pile revient, réimporte le fichier. Avec Playwright : `page.evaluate("BinksyAPI.describe()")`, ou `browser_evaluate` dans Playwright MCP (`npx @playwright/mcp@latest`). Les sélecteurs de l’interface (plus bas) restent valables.
+Importe toujours le média de l’utilisateur **avant** d’ajouter des effets : sans média, l’API refuse (`NO_SOURCE`) au lieu de charger l’image d’exemple. Le média importé est gardé automatiquement dans le navigateur (IndexedDB) : après rechargement, le média, la pile et la sortie reviennent tels quels (attends `BinksyAPI.ready()`). Avec Playwright : `page.evaluate("BinksyAPI.describe()")`, ou `browser_evaluate` dans Playwright MCP (`npx @playwright/mcp@latest`). Les sélecteurs de l’interface (plus bas) restent valables.
 
 ---
 
@@ -229,14 +229,15 @@ Ne modifie pas `TL.st` directement : l’historique et la session ne seraient pa
 
 | Où | Clé / fichier | Contenu |
 | --- | --- | --- |
-| `localStorage` | `texturelab.session` | `{stack, out}` — réécrit à chaque modification, relu au chargement (une sortie `video` repasse en `png`) |
+| `localStorage` | `texturelab.session` | `{stack, out}` — réécrit à chaque modification, relu au chargement après le média (une sortie `video` repasse en `png` seulement si aucune vidéo n’est restaurée) |
+| IndexedDB | base `texturelab-autosave`, magasin `media`, clé `source` | Le média importé : `{ id: 'source', name, type, blob }` (image d’exemple : `{ id: 'source', demo: true }`, sans copie). Remplacé à chaque nouvel import, restauré au démarrage **avant** les réglages. Stockage plein : petit message, l’app continue. |
 | `localStorage` | `texturelab.presets` | `[{name, stack}]` — préréglages perso |
 | fichier | `texture-lab-projet.json` | `{app: "texturelab", v: 1, stack, out}` |
 
-* **Le média n’est jamais enregistré** : après un rechargement, la pile revient mais `TL.ready` est `false` ; réimporte le fichier.
+* **Le média est enregistré automatiquement** (IndexedDB) : après un rechargement, le média revient d’abord, puis la pile et la sortie ; `TL.ready` repasse à `true` une fois la restauration finie (`await BinksyAPI.ready()`).
 * L’historique (annuler / rétablir, 120 étapes) n’est pas conservé.
 * `#projFile` (ou un `.json` glissé sur la page) ouvre un projet : effets inconnus ignorés, image d’exemple chargée si aucun média. Chaque couche du projet doit contenir **tous** ses réglages dans `v` (les valeurs manquantes ne sont pas complétées) : pars d’un projet enregistré par l’app, puis modifie ses valeurs.
-* Pour repartir de zéro : `#clearBtn`, ou `localStorage.removeItem('texturelab.session')` puis rechargement.
+* Pour repartir de zéro : `#clearBtn`, ou `localStorage.removeItem('texturelab.session')` et `indexedDB.deleteDatabase('texturelab-autosave')` puis rechargement.
 
 ---
 
@@ -490,14 +491,15 @@ Do not modify `TL.st` directly: history and session would not be updated. To for
 
 | Where | Key / file | Content |
 | --- | --- | --- |
-| `localStorage` | `texturelab.session` | `{stack, out}` — rewritten on every change, read on load (a `video` output falls back to `png`) |
+| `localStorage` | `texturelab.session` | `{stack, out}` — rewritten on every change, read on load after the media (a `video` output falls back to `png` only when no video is restored) |
+| IndexedDB | database `texturelab-autosave`, store `media`, key `source` | The imported media: `{ id: 'source', name, type, blob }` (example image: `{ id: 'source', demo: true }`, no copy). Replaced on every new import, restored at startup **before** the settings. Storage full: small notice, the app keeps working. |
 | `localStorage` | `texturelab.presets` | `[{name, stack}]` — custom presets |
 | file | `texture-lab-projet.json` | `{app: "texturelab", v: 1, stack, out}` |
 
-* **The media is never stored**: after a reload the stack comes back but `TL.ready` is `false`; import the file again.
+* **The media is auto-saved** (IndexedDB): after a reload the media comes back first, then the stack and output; `TL.ready` is `true` again once restoration is done (`await BinksyAPI.ready()`).
 * History (undo / redo, 120 steps) is not kept.
 * `#projFile` (or a `.json` dropped on the page) opens a project: unknown effects are skipped, the example image is loaded if no media is. Each layer must hold **all** its settings in `v` (missing values are not filled in): start from a project saved by the app, then edit its values.
-* To start fresh: `#clearBtn`, or `localStorage.removeItem('texturelab.session')` then reload.
+* To start fresh: `#clearBtn`, or `localStorage.removeItem('texturelab.session')` and `indexedDB.deleteDatabase('texturelab-autosave')` then reload.
 
 ---
 
